@@ -24,20 +24,11 @@ pipeline {
                 sh "docker push ${IMAGE_NAME}:${IMAGE_TAG}"
             }
         }
-	stage('Debug Kubeconfig') {
-	    steps {
-	        withEnv(["KUBECONFIG=${KUBECONFIG_FILE}"]) {
-	            sh 'echo $KUBECONFIG'
-	            sh 'kubectl config get-contexts'
-	            sh 'kubectl config current-context'
-	        }
-	    }
-	}
         stage('Deploy to Staging') {
             steps {
                 withEnv(["KUBECONFIG=${KUBECONFIG_FILE}"]) {
                     sh "sed -i 's|REPLACE_ME|${IMAGE_TAG}|g' k8s/deployment.yaml"
-                    sh "kubectl --context kind-staging apply -f k8s/"
+                    sh "kubectl --context kind-staging apply -f k8s/--insecure-skip-tls-verify=true"
                 }
             }
         }
