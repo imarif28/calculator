@@ -5,7 +5,7 @@ pipeline {
         KUBECONFIG_FILE = credentials('kubeconfig')
         IMAGE_NAME = "imarif28/calculator"
         IMAGE_TAG = "${BUILD_NUMBER}"
-        JAVA_HOME = "\${JENKINS_JAVA_HOME}"
+	JAVA_HOME = "/opt/java/openjdk"
     }
     stages {
         stage('Compile and Test') {
