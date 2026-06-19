@@ -28,7 +28,7 @@ pipeline {
             steps {
                 withEnv(["KUBECONFIG=${KUBECONFIG_FILE}"]) {
                     sh "sed -i 's|REPLACE_ME|${IMAGE_TAG}|g' k8s/deployment.yaml"
-                    sh "kubectl --context kind-staging apply -f k8s/--insecure-skip-tls-verify=true"
+                    sh "kubectl --context kind-staging apply -f k8s/ --insecure-skip-tls-verify=true"
                 }
             }
         }
