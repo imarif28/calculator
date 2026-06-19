@@ -24,6 +24,15 @@ pipeline {
                 sh "docker push ${IMAGE_NAME}:${IMAGE_TAG}"
             }
         }
+	stage('Debug Kubeconfig') {
+	    steps {
+	        withEnv(["KUBECONFIG=${KUBECONFIG_FILE}"]) {
+	            sh 'echo $KUBECONFIG'
+	            sh 'kubectl config get-contexts'
+	            sh 'kubectl config current-context'
+	        }
+	    }
+	}
         stage('Deploy to Staging') {
             steps {
                 withEnv(["KUBECONFIG=${KUBECONFIG_FILE}"]) {
