@@ -5,6 +5,7 @@ pipeline {
         KUBECONFIG_FILE = credentials('kubeconfig')
         IMAGE_NAME = "imarif28/calculator"
         IMAGE_TAG = "${BUILD_NUMBER}"
+        JAVA_HOME = "/usr/lib/jvm/java-17-openjdk-amd64"
     }
     stages {
         stage('Compile and Test') {
@@ -33,7 +34,6 @@ pipeline {
         }
         stage('Acceptance Test') {
             steps {
-                // Penundaan sementara diaplikasikan untuk menunggu pod mencapai status siap
                 sh "sleep 15"
                 echo "Simulasi pengujian fungsional pada lingkungan staging dieksekusi..."
             }
