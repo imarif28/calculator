@@ -1,9 +1,11 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: calculator
+  name: calculator-deployment
+  labels:
+    app: calculator
 spec:
-  replicas: 1
+  replicas: 3
   selector:
     matchLabels:
       app: calculator
@@ -14,6 +16,6 @@ spec:
     spec:
       containers:
       - name: calculator
-        image: imarif28/calculator:REPLACE_ME
+        image: leszko/calculator:{{VERSION}}
         ports:
         - containerPort: 8080

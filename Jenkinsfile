@@ -1,55 +1,83 @@
 pipeline {
-    agent any
-    environment {
-        DOCKERHUB_CREDS = credentials('dockerhub')
-        KUBECONFIG_FILE = credentials('kubeconfig')
-        IMAGE_NAME = "imarif28/calculator"
-        IMAGE_TAG = "${BUILD_NUMBER}"
-	JAVA_HOME = "/opt/java/openjdk"
-    }
-    stages {
-        stage('Compile and Test') {
-            steps {
-                sh './gradlew clean build'
-            }
-        }
-        stage('Build Docker Image') {
-            steps {
-                sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
-            }
-        }
-        stage('Push Docker Image') {
-            steps {
-                sh "echo ${DOCKERHUB_CREDS_PSW} | docker login -u ${DOCKERHUB_CREDS_USR} --password-stdin"
-                sh "docker push ${IMAGE_NAME}:${IMAGE_TAG}"
-            }
-        }
-        stage('Deploy to Staging') {
-            steps {
-                withEnv(["KUBECONFIG=${KUBECONFIG_FILE}"]) {
-                    sh "sed -i 's|REPLACE_ME|${IMAGE_TAG}|g' k8s/deployment.yaml"
-                    sh "kubectl --context kind-staging apply -f k8s/ --insecure-skip-tls-verify=true"
-                }
-            }
-        }
-        stage('Acceptance Test') {
-            steps {
-                sh "sleep 15"
-                echo "Simulasi pengujian fungsional pada lingkungan staging dieksekusi..."
-            }
-        }
-        stage('Deploy to Production') {
-            steps {
-                withEnv(["KUBECONFIG=${KUBECONFIG_FILE}"]) {
-                    sh "kubectl --context kind-production apply -f k8s/"
-                }
-            }
-        }
-        stage('Smoke Test') {
-            steps {
-                sh "sleep 15"
-                echo "Simulasi validasi rilis akhir pada lingkungan produksi dieksekusi..."
-            }
-        }
-    }
+     agent any
+     triggers {
+          pollSCM('* * * * *')
+     }
+     stages {
+          stage("Compile") {
+               steps {
+                    sh "./gradlew compileJava"
+               }
+          }
+          stage("Unit test") {
+               steps {
+                    sh "./gradlew test"
+               }
+          }
+          stage("Code coverage") {
+               steps {
+                    sh "./gradlew jacocoTestReport"
+                    sh "./gradlew jacocoTestCoverageVerification"
+               }
+          }
+          stage("Static code analysis") {
+               steps {
+                    sh "./gradlew checkstyleMain"
+               }
+          }
+          stage("Package") {
+               steps {
+                    sh "./gradlew build"
+               }
+          }
+
+          stage("Docker build") {
+               steps {
+                    sh "docker build -t leszko/calculator:${BUILD_TIMESTAMP} ."
+               }
+          }
+
+          stage("Docker push") {
+               steps {
+                    sh "docker push leszko/calculator:${BUILD_TIMESTAMP}"
+               }
+          }
+
+          stage("Update version") {
+               steps {
+                    sh "sed  -i 's/{{VERSION}}/${BUILD_TIMESTAMP}/g' deployment.yaml"
+               }
+          }
+          
+          stage("Deploy to staging") {
+               steps {
+                    sh "kubectl config use-context staging"
+                    sh "kubectl apply -f hazelcast.yaml"
+                    sh "kubectl apply -f deployment.yaml"
+                    sh "kubectl apply -f service.yaml"
+               }
+          }
+
+          stage("Acceptance test") {
+               steps {
+                    sleep 60
+                    sh "chmod +x acceptance-test.sh && ./acceptance-test.sh"
+               }
+          }
+
+          stage("Release") {
+               steps {
+                    sh "kubectl config use-context production"
+                    sh "kubectl apply -f hazelcast.yaml"
+                    sh "kubectl apply -f deployment.yaml"
+                    sh "kubectl apply -f service.yaml"                    
+               }
+          }
+          stage("Smoke test") {
+              steps {
+                  sleep 60
+                  sh "chmod +x smoke-test.sh && ./smoke-test.sh"
+              }
+          }
+     }
 }
