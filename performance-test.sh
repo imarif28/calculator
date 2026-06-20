@@ -1,18 +1,25 @@
 #!/bin/bash
 set -x
 
-# Kita gunakan environment staging untuk performance test
-NODE_IP=$(kubectl --context kind-staging get nodes -o jsonpath='{ $.items[0].status.addresses[?(@.type=="InternalIP")].address }')
-NODE_PORT=$(kubectl --context kind-staging get svc calculator-service -o=jsonpath='{.spec.ports[0].nodePort}')
-ENDPOINT="${NODE_IP}:${NODE_PORT}"
+if [ -n "$1" ]; then
+    ENDPOINT=$1
+    PATH_URL="/hello"
+else
+    # Kita gunakan environment staging untuk performance test
+    NODE_IP=$(kubectl --context kind-staging get nodes -o jsonpath='{ $.items[0].status.addresses[?(@.type=="InternalIP")].address }')
+    NODE_PORT=$(kubectl --context kind-staging get svc calculator-service -o=jsonpath='{.spec.ports[0].nodePort}')
+    ENDPOINT="${NODE_IP}:${NODE_PORT}"
+    PATH_URL="/sum?a=1&b=2"
+fi
+
 N=100
 
-echo "Memulai performance test pada http://${ENDPOINT}/sum?a=1&b=2 sebanyak ${N} kali..."
+echo "Memulai performance test pada http://${ENDPOINT}${PATH_URL} sebanyak ${N} kali..."
 
 START=$(date +%s)
 for i in $(seq ${N}); do
     # -s: silent, -o /dev/null: sembunyikan body response, -w: ambil http status code
-    STATUS=$(curl -s -o /dev/null -w "%{http_code}" "http://${ENDPOINT}/sum?a=1&b=2")
+    STATUS=$(curl -s -o /dev/null -w "%{http_code}" "http://${ENDPOINT}${PATH_URL}")
     
     if [ "$STATUS" != "200" ]; then
         echo "Error: Mendapat status HTTP $STATUS pada request ke-$i"

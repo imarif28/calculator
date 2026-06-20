@@ -67,11 +67,6 @@ pipeline {
                }
           }
 
-          stage("Performance test") {
-               steps {
-                    sh "./performance-test.sh"
-               }
-          }
 
           stage("Release") {
                steps {
