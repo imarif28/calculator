@@ -67,6 +67,12 @@ pipeline {
                }
           }
 
+          stage("Performance test") {
+               steps {
+                    sh "./performance-test.sh"
+               }
+          }
+
           stage("Release") {
                steps {
                     sh "kubectl --context kind-production apply -f hazelcast.yaml"
