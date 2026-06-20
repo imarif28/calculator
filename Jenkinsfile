@@ -54,10 +54,9 @@ pipeline {
           
           stage("Deploy to staging") {
                steps {
-                    sh "kubectl config use-context kind-staging"
-                    sh "kubectl apply -f hazelcast.yaml"
-                    sh "kubectl apply -f deployment.yaml"
-                    sh "kubectl apply -f service.yaml"
+                    sh "kubectl --context kind-staging apply -f hazelcast.yaml"
+                    sh "kubectl --context kind-staging apply -f deployment.yaml"
+                    sh "kubectl --context kind-staging apply -f service.yaml"
                }
           }
 
@@ -70,10 +69,9 @@ pipeline {
 
           stage("Release") {
                steps {
-                    sh "kubectl config use-context kind-production"
-                    sh "kubectl apply -f hazelcast.yaml"
-                    sh "kubectl apply -f deployment.yaml"
-                    sh "kubectl apply -f service.yaml"                    
+                    sh "kubectl --context kind-production apply -f hazelcast.yaml"
+                    sh "kubectl --context kind-production apply -f deployment.yaml"
+                    sh "kubectl --context kind-production apply -f service.yaml"                    
                }
           }
           stage("Smoke test") {
