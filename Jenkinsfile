@@ -6,7 +6,7 @@ pipeline {
      environment {
           BUILD_TIMESTAMP = sh(script: 'date +%Y%m%d%H%M%S', returnStdout: true).trim()
           DOCKER_IMAGE = "imarif28/calculator:${BUILD_TIMESTAMP}"
-          KUBECONFIG = "/var/jenkins_home/.kube/config"
+          KUBECONFIG = credentials('kubeconfig')
      }
      stages {
           stage("Compile") {
@@ -39,7 +39,7 @@ pipeline {
           stage("Docker build and push") {
                steps {
                     withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                         sh "echo ${DOCKER_PASS} | docker login -u ${DOCKER_USER} --password-stdin"
+                         sh 'echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin'
                          sh "docker build -t ${DOCKER_IMAGE} ."
                          sh "docker push ${DOCKER_IMAGE}"
                     }
