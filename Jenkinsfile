@@ -6,6 +6,7 @@ pipeline {
      environment {
           BUILD_TIMESTAMP = sh(script: 'date +%Y%m%d%H%M%S', returnStdout: true).trim()
           DOCKER_IMAGE = "imarif28/calculator:${BUILD_TIMESTAMP}"
+          KUBECONFIG = "/var/jenkins_home/.kube/config"
      }
      stages {
           stage("Compile") {
