@@ -5,6 +5,7 @@ pipeline {
      }
      environment {
           BUILD_TIMESTAMP = sh(script: 'date +%Y%m%d%H%M%S', returnStdout: true).trim()
+          DOCKER_IMAGE = "imarif28/calculator:${BUILD_TIMESTAMP}"
      }
      stages {
           stage("Compile") {
@@ -36,13 +37,16 @@ pipeline {
 
           stage("Docker build") {
                steps {
-                    sh "docker build -t leszko/calculator:${BUILD_TIMESTAMP} ."
+                    sh "docker build -t ${DOCKER_IMAGE} ."
                }
           }
 
           stage("Docker push") {
                steps {
-                    sh "docker push leszko/calculator:${BUILD_TIMESTAMP}"
+                    withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                         sh "echo ${DOCKER_PASS} | docker login -u ${DOCKER_USER} --password-stdin"
+                         sh "docker push ${DOCKER_IMAGE}"
+                    }
                }
           }
 

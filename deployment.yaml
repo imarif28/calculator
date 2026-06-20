@@ -16,6 +16,6 @@ spec:
     spec:
       containers:
       - name: calculator
-        image: leszko/calculator:{{VERSION}}
+        image: imarif28/calculator:{{VERSION}}
         ports:
         - containerPort: 8080
