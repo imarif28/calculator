@@ -3,6 +3,9 @@ pipeline {
      triggers {
           pollSCM('* * * * *')
      }
+     environment {
+          BUILD_TIMESTAMP = sh(script: 'date +%Y%m%d%H%M%S', returnStdout: true).trim()
+     }
      stages {
           stage("Compile") {
                steps {
