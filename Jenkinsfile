@@ -66,7 +66,11 @@ pipeline {
                     sh "chmod +x acceptance-test.sh && ./acceptance-test.sh"
                }
           }
-
+          stage("Performance test") {
+               steps {
+                    sh "chmod +x performance-test.sh && ./performance-test.sh"
+               }
+          }
 
           stage("Release") {
                steps {
