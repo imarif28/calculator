@@ -7,6 +7,6 @@ public class CalculatorControllerTest {
  
      @Test 
      public void testWelcome() { 
-          assertEquals("<h1>Selamat Datang di Calculator API v2!</h1><p>Versi ini baru saja di-deploy otomatis oleh Jenkins CI/CD.</p>", controller.welcome()); 
+          assertEquals("<h1>Selamat Datang di Calculator API v1!</h1><p>Versi ini baru saja di-deploy otomatis oleh Jenkins CI/CD.</p>", controller.welcome()); 
      } 
 }
