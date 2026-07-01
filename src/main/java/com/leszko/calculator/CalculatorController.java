@@ -14,4 +14,9 @@ class CalculatorController {
                 @RequestParam("b") Integer b) { 
           return String.valueOf(calculator.sum(a, b)); 
      } 
+     
+     @RequestMapping("/")
+     String welcome() {
+          return "<h1>Selamat Datang di Calculator API v2!</h1><p>Versi ini baru saja di-deploy otomatis oleh Jenkins CI/CD.</p>";
+     }
 } 
