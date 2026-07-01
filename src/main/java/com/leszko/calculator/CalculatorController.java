@@ -17,6 +17,6 @@ class CalculatorController {
      
      @RequestMapping("/")
      String welcome() {
-          return "<h1>Selamat Datang di Calculator API v2!</h1><p>Versi ini baru saja di-deploy otomatis oleh Jenkins CI/CD.</p>";
+          return "<h1>Selamat Datang di Calculator API v1!</h1><p>Versi ini baru saja di-deploy otomatis oleh Jenkins CI/CD.</p>";
      }
 } 
